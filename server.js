@@ -1,22 +1,22 @@
 const express = require('express');
 const path = require('path');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Static folder for landing page
+// Serve static files dari folder public (index.html, style, dsb)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Endpoint API utama
-app.use('/api', require('./api/index'));
-app.use('/api/download', require('./api/download'));
-app.use('/api/tools', require('./api/tools'));
-app.use('/api/ai', require('./api/ai'));
+// Routing API
+const apiRoutes = require('./api/index');
+app.use('/api', apiRoutes);
 
-// Catch-all (optional)
+// Fallback jika route tidak ditemukan
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
 });
 
+// Mulai server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server berjalan di http://localhost:${PORT}`);
 });
