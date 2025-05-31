@@ -13,7 +13,6 @@ router.get('/', (req, res) => {
   });
 });
 
-// Subendpoint langsung di sini
 router.get('/download', (req, res) => {
   res.json({
     category: 'Download',
