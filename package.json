@@ -1,15 +1,21 @@
 {
   "name": "animeverse-api",
   "version": "1.0.0",
-  "description": "Landing page dan API endpoint AnimeVerse",
-  "main": "server.js",
+  "description": "Free AnimeVerse API - Downloaders, Tools, AI endpoints",
+  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "dev": "vercel dev",
+    "start": "vercel dev"
   },
-  "keywords": ["anime", "api", "express", "nodejs", "public-api"],
-  "author": "Didi Gunawan",
+  "keywords": [
+    "api",
+    "animeverse",
+    "download",
+    "tools",
+    "ai"
+  ],
+  "author": "AnimeVerse Team",
   "license": "MIT",
-  "dependencies": {
-    "express": "^4.18.4"
-  }
+  "dependencies": {}
 }
