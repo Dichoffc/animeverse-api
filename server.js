@@ -1,79 +1,98 @@
 const express = require('express');
-const app = express();
-const cors = require('cors');
+const path = require('path');
 
-app.use(cors());
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware JSON parse (kalau nanti perlu API POST)
 app.use(express.json());
 
-// Endpoint utama /api
-app.get('/api', (req, res) => {
-  res.json({
-    status: true,
-    creator: "AnimeVerse",
-    message: "Welcome to AnimeVerse API!",
-    endpoints: {
-      anime: "/api/anime",
-      downloader: {
-        youtube: "/api/download/youtube?url=",
-        tiktok: "/api/download/tiktok?url=",
-        instagram: "/api/download/instagram?url="
-      },
-      tools: {
-        removebg: "/api/tools/removebg?image_url=",
-        hd: "/api/tools/upscale?image_url="
-      },
-      ai: "/api/ai?ask=siapa+kamu"
-    }
-  });
-});
+// Static file untuk landing page utama (misal di folder public)
+app.use('/', express.static(path.join(__dirname, 'public')));
 
-// Anime update (dummy)
+// Static file khusus buat dokumentasi API di /api
+app.use('/api', express.static(path.join(__dirname, 'public/api')));
+
+// ---------------- API Endpoint --------------------
+
+// Contoh endpoint update anime list
 app.get('/api/anime', (req, res) => {
+  // Contoh data response
   res.json({
     status: true,
-    anime: [
-      { title: "Jujutsu Kaisen S2", status: "Ongoing" },
-      { title: "One Piece", status: "Weekly" },
-      { title: "Solo Leveling", status: "Finished" }
-    ]
+    message: 'List anime terbaru',
+    data: [
+      { id: 1, title: 'One Piece', status: 'Ongoing' },
+      { id: 2, title: 'Naruto', status: 'Completed' },
+      // tambahkan anime lain sesuai data nyata
+    ],
   });
 });
 
-// Downloader endpoints
+// Contoh endpoint downloader YouTube
 app.get('/api/download/youtube', (req, res) => {
-  const url = req.query.url;
-  res.json({ status: true, message: `YouTube downloader triggered for ${url}` });
+  const videoUrl = req.query.url;
+  if (!videoUrl) return res.status(400).json({ error: 'Parameter url dibutuhkan' });
+  
+  // Placeholder: proses download disini, misal pakai youtube-dl atau API lain
+  res.json({ status: true, message: `Download video YouTube dari ${videoUrl} sedang diproses.` });
 });
 
+// Contoh endpoint downloader TikTok tanpa watermark
 app.get('/api/download/tiktok', (req, res) => {
-  const url = req.query.url;
-  res.json({ status: true, message: `TikTok downloader triggered for ${url}` });
+  const videoUrl = req.query.url;
+  if (!videoUrl) return res.status(400).json({ error: 'Parameter url dibutuhkan' });
+
+  // Placeholder proses TikTok download
+  res.json({ status: true, message: `Download video TikTok dari ${videoUrl} tanpa watermark sedang diproses.` });
 });
 
+// Contoh endpoint downloader Instagram
 app.get('/api/download/instagram', (req, res) => {
-  const url = req.query.url;
-  res.json({ status: true, message: `Instagram downloader triggered for ${url}` });
+  const mediaUrl = req.query.url;
+  if (!mediaUrl) return res.status(400).json({ error: 'Parameter url dibutuhkan' });
+
+  // Placeholder proses download IG
+  res.json({ status: true, message: `Download media Instagram dari ${mediaUrl} sedang diproses.` });
 });
 
-// Tools
+// Tools: Remove Background
 app.get('/api/tools/removebg', (req, res) => {
   const imageUrl = req.query.image_url;
-  res.json({ status: true, message: `Remove BG for image: ${imageUrl}` });
+  if (!imageUrl) return res.status(400).json({ error: 'Parameter image_url dibutuhkan' });
+
+  // Placeholder proses removebg
+  res.json({ status: true, message: `Remove background gambar dari ${imageUrl} sedang diproses.` });
 });
 
+// Tools: Upscale HD
 app.get('/api/tools/upscale', (req, res) => {
   const imageUrl = req.query.image_url;
-  res.json({ status: true, message: `HD Upscale for image: ${imageUrl}` });
+  if (!imageUrl) return res.status(400).json({ error: 'Parameter image_url dibutuhkan' });
+
+  // Placeholder proses upscale
+  res.json({ status: true, message: `Upscale gambar dari ${imageUrl} sedang diproses.` });
 });
 
-// AI Chat
+// AI Tanya Jawab
 app.get('/api/ai', (req, res) => {
-  const ask = req.query.ask || "Tidak ada pertanyaan";
-  res.json({ status: true, answer: `Kamu bertanya: "${ask}", jawaban dummy: Saya adalah AI bot dari AnimeVerse.` });
+  const question = req.query.ask;
+  if (!question) return res.status(400).json({ error: 'Parameter ask dibutuhkan' });
+
+  // Placeholder: proses AI tanya jawab
+  res.json({ 
+    status: true, 
+    question: question, 
+    answer: 'Ini adalah jawaban AI untuk pertanyaan kamu (placeholder).' 
+  });
 });
 
-// Port
-const PORT = process.env.PORT || 3000;
+// Error handler sederhana
+app.use((req, res) => {
+  res.status(404).json({ error: 'Endpoint tidak ditemukan' });
+});
+
+// Jalankan server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server AnimeVerse berjalan di http://localhost:${PORT}`);
 });
