@@ -1,14 +1,6 @@
-const express = require('express');
-const router = express.Router();
-
-router.get('/', (req, res) => {
-  res.json({
-    status: 'success',
-    platform: 'TikTok',
-    example: {
-      url: 'https://api.animeverse.xyz/api/download/tiktok?url=https://tiktok.com/video/abc123'
-    }
+export default function handler(req, res) {
+  res.status(200).json({
+    service: 'Tiktok Downloader',
+    example: '/api/download/tiktok?url=https://tiktok.com/xyz'
   });
-});
-
-module.exports = router;
+}
