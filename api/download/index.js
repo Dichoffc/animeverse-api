@@ -1,14 +1,10 @@
-const express = require('express');
-const router = express.Router();
-
-router.get('/', (req, res) => {
-  res.json({
-    Downloader: {
-      TikTok: '/api/download/tiktok',
-      Instagram: '/api/download/instagram',
-      YouTube: '/api/download/youtube'
-    }
+export default function handler(req, res) {
+  res.status(200).json({
+    category: 'Download',
+    services: [
+      { name: 'Tiktok', endpoint: '/api/download/tiktok' },
+      { name: 'Instagram', endpoint: '/api/download/instagram' },
+      { name: 'YouTube', endpoint: '/api/download/youtube' }
+    ]
   });
-});
-
-module.exports = router;
+}
