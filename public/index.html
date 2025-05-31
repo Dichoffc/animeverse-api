@@ -2,78 +2,122 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AnimeVerse API</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet" />
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Rubik', sans-serif;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #0f0f0f;
+      background: url('https://pomf2.lain.la/f/s52zh3wg.gif') no-repeat center center fixed;
+      background-size: cover;
       color: #fff;
-      padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2.5rem 3rem;
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+      max-width: 700px;
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    h1 {
+      font-size: 3rem;
+      color: #1abc9c;
+      text-shadow: 0 0 8px #1abc9c, 0 0 16px #16a085;
+      animation: glowTosca 2.5s infinite alternate;
+    }
+
+    @keyframes glowTosca {
+      from {
+        text-shadow: 0 0 8px #1abc9c, 0 0 16px #16a085;
+      }
+      to {
+        text-shadow: 0 0 16px #1abc9c, 0 0 30px #16a085;
+      }
+    }
+
+    .info-box {
+      background: rgba(26, 188, 156, 0.15);
+      border: 2px solid #16a085;
+      border-radius: 20px;
+      padding: 2rem 2.5rem;
+      box-shadow: 0 0 15px rgba(26, 188, 156, 0.4);
+      font-size: 1.2rem;
       text-align: center;
     }
-    h1 {
-      color: #1abc9c;
-      margin-bottom: 2rem;
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 1.4rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
     }
-    .section {
-      margin: 1.5rem 0;
-    }
+
     .btn {
       background: #1abc9c;
+      border: 2px solid #16a085;
+      padding: 0.9rem 1.8rem;
+      font-size: 1rem;
       color: white;
-      padding: 0.7rem 1.5rem;
-      border: none;
-      border-radius: 10px;
-      margin: 0.5rem;
+      border-radius: 15px;
       cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 0 10px rgba(26, 188, 156, 0.6);
     }
+
     .btn:hover {
       background: #16a085;
+      border-color: #13a27a;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(22, 160, 133, 0.8);
     }
-    .endpoint-list {
-      display: none;
-      margin-top: 1rem;
-    }
-    .endpoint-list a {
-      display: block;
-      color: #fff;
-      text-decoration: none;
-      margin: 0.3rem 0;
+
+    .credits {
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: #1abc9c;
+      text-shadow: 0 0 5px #16a085;
     }
   </style>
 </head>
 <body>
-  <h1>AnimeVerse Public API</h1>
-
-  <div class="section">
-    <button class="btn" onclick="toggle('download')">Download 📥</button>
-    <div id="download" class="endpoint-list">
-      <a href="/api/download/tiktok">/api/download/tiktok</a>
-      <a href="/api/download/instagram">/api/download/instagram</a>
-      <a href="/api/download/youtube">/api/download/youtube</a>
+  <div class="container">
+    <h1>Welcome to AnimeVerse</h1>
+    <div class="info-box">
+      <p>Explore our powerful and free AnimeVerse API:</p>
+      <div class="button-row">
+        <a href="/api" class="btn">Explore API</a>
+        <button class="btn" onclick="alert('Tanya AI masih dalam pengembangan, bre!')">Tanya AI</button>
+        <button class="btn" onclick="toggleAudio()">Play / Pause Music</button>
+      </div>
     </div>
+    <div class="credits">© 2025 - 2030 AnimeVerse API</div>
   </div>
 
-  <div class="section">
-    <button class="btn" onclick="toggle('tools')">Tools 🛠</button>
-    <div id="tools" class="endpoint-list">
-      <a href="/api/tools/shortlink">/api/tools/shortlink</a>
-      <a href="/api/tools/randomtext">/api/tools/randomtext</a>
-    </div>
-  </div>
-
-  <div class="section">
-    <button class="btn" onclick="toggle('ai')">AI 🤖</button>
-    <div id="ai" class="endpoint-list">
-      <a href="/api/ai/chat">/api/ai/chat</a>
-      <a href="/api/ai/imagegen">/api/ai/imagegen</a>
-    </div>
-  </div>
-
+  <audio id="bg-audio" src="https://pomf2.lain.la/f/vt9sw8eh.webm"></audio>
   <script>
-    function toggle(id) {
-      const el = document.getElementById(id);
-      el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    function toggleAudio() {
+      const audio = document.getElementById('bg-audio');
+      audio.paused ? audio.play() : audio.pause();
     }
   </script>
 </body>
