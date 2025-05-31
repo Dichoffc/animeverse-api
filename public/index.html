@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AnimeVerse API - Public Menu</title>
+<style>
+  body {
+    font-family: 'Rubik', sans-serif;
+    background: #121212;
+    color: #1abc9c;
+    padding: 2rem;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px #16a085;
+  }
+  #features, #subfeatures {
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  button {
+    background: rgba(26, 188, 156, 0.15);
+    border: 2px solid #16a085;
+    border-radius: 15px;
+    color: #1abc9c;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(26, 188, 156, 0.4);
+    transition: 0.3s;
+    flex: 1 1 180px;
+    text-align: center;
+  }
+  button:hover {
+    background: #16a085;
+    color: #fff;
+    border-color: #1abc9c;
+    box-shadow: 0 0 25px #1abc9c;
+  }
+  #json-output {
+    max-width: 700px;
+    margin: 0 auto;
+    background: rgba(0,0,0,0.7);
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    color: #d0f0ec;
+    font-family: monospace;
+    white-space: pre-wrap;
+    box-shadow: 0 0 15px #1abc9c;
+    overflow-x: auto;
+  }
+  #back-btn {
+    display: block;
+    max-width: 700px;
+    margin: 0 auto 1.5rem;
+    padding: 0.7rem 1.2rem;
+    border-radius: 15px;
+    border: 2px solid #1abc9c;
+    background: transparent;
+    color: #1abc9c;
+    cursor: pointer;
+    text-align: center;
+  }
+  #back-btn:hover {
+    background: #1abc9c;
+    color: #121212;
+  }
+</style>
+</head>
+<body>
+
+<h1>AnimeVerse API Public Menu</h1>
+
+<div id="features"></div>
+<div id="subfeatures" style="display:none;"></div>
+<button id="back-btn" style="display:none;">⬅️ Kembali ke Menu Utama</button>
+<pre id="json-output" style="display:none;"></pre>
+
+<script>
+  // Data fitur bot WA versi public
+  const apiData = {
+    "Downloader": {
+      description: "Download video dan media dari sosial media populer.",
+      subfeatures: {
+        "TikTok": {
+          description: "Download video TikTok tanpa watermark.",
+          example: {
+            status: "success",
+            platform: "TikTok",
+            videoUrl: "https://tiktok.com/video123.mp4",
+            quality: "720p"
+          }
+        },
+        "Instagram": {
+          description: "Download foto dan video Instagram.",
+          example: {
+            status: "success",
+            platform: "Instagram",
+            mediaType: "image",
+            url: "https://instagram.com/p/xyz123.jpg"
+          }
+        },
+        "Twitter": {
+          description: "Download video dari Twitter.",
+          example: {
+            status: "success",
+            platform: "Twitter",
+            videoUrl: "https://twitter.com/video789.mp4",
+            quality: "1080p"
+          }
+        },
+        "Facebook": {
+          description: "Download video Facebook.",
+          example: {
+            status: "success",
+            platform: "Facebook",
+            videoUrl: "https://facebook.com/video456.mp4"
+          }
+        }
+      }
+    },
+    "Tools": {
+      description: "Alat bantu video, gambar, dan teks.",
+      subfeatures: {
+        "Convert Video to HD": {
+          description: "Meningkatkan kualitas video ke HD.",
+          example: {
+            status: "success",
+            tool: "Convert Video to HD",
+            inputQuality: "480p",
+            outputQuality: "1080p"
+          }
+        },
+        "Remove Background": {
+          description: "Menghapus background gambar secara otomatis.",
+          example: {
+            status: "success",
+            tool: "Remove Background",
+            inputImage: "https://example.com/input.jpg",
+            outputImage: "https://example.com/output.png"
+          }
+        }
+      }
+    },
+    "AI": {
+      description: "Fitur AI untuk tanya jawab dan analisis.",
+      subfeatures: {
+        "Chat AI": {
+          description: "Tanya AI seputar anime dan lainnya.",
+          example: {
+            status: "success",
+            question: "Siapa karakter utama di Naruto?",
+            answer: "Naruto Uzumaki adalah karakter utama dalam serial Naruto."
+          }
+        },
+        "Image Generation": {
+          description: "Generate gambar anime dengan AI.",
+          example: {
+            status: "success",
+            tool: "Image Generation",
+            prompt: "Anime girl with blue hair",
+            imageUrl: "https://animeverse.xyz/generated/bluehair.png"
+          }
+        }
+      }
+    },
+    "Others": {
+      description: "Fitur tambahan lainnya.",
+      subfeatures: {
+        "Anime Updates": {
+          description: "Dapatkan info episode terbaru anime favorit.",
+          example: {
+            status: "success",
+            anime: "One Piece",
+            latestEpisode: 1100,
+            airDate: "2025-05-31"
+          }
+        },
+        "Random Quotes": {
+          description: "Quotes motivasi dari anime.",
+          example: {
+            status: "success",
+            quote: "Hard work is worthless for those that don’t believe in themselves."
+          }
+        }
+      }
+    }
+  };
+
+  // DOM elements
+  const featuresDiv = document.getElementById('features');
+  const subfeaturesDiv = document.getElementById('subfeatures');
+  const jsonOutput = document.getElementById('json-output');
+  const backBtn = document.getElementById('back-btn');
+
+  // Render fitur utama
+  function renderFeatures() {
+    featuresDiv.innerHTML = '';
+    subfeaturesDiv.style.display = 'none';
+    jsonOutput.style.display = 'none';
+    backBtn.style.display = 'none';
+    featuresDiv.style.display = 'flex';
+
+    for (const feature in apiData) {
+      const btn = document.createElement('button');
+      btn.textContent = feature;
+      btn.title = apiData[feature].description;
+      btn.onclick = () => {
+        renderSubfeatures(feature);
+      };
+      featuresDiv.appendChild(btn);
+    }
+  }
+
+  // Render submenu dari fitur terpilih
+  function renderSubfeatures(feature) {
+    featuresDiv.style.display = 'none';
+    jsonOutput.style.display = 'none';
+    subfeaturesDiv.style.display = 'flex';
+    backBtn.style.display = 'block';
+
+    subfeaturesDiv.innerHTML = '';
+
+    const subs = apiData[feature].subfeatures;
+    for (const sub in subs) {
+      const btn = document.createElement('button');
+      btn.textContent = sub;
+      btn.title = subs[sub].description;
+      btn.onclick = () => {
+        showJSON(subs[sub].example);
+      };
+      subfeaturesDiv.appendChild(btn);
+    }
+  }
+
+  // Tampilkan JSON response contoh
+  function showJSON(jsonData) {
+    jsonOutput.style.display = 'block';
+    jsonOutput.textContent = JSON.stringify(jsonData, null, 2);
+  }
+
+  // Tombol kembali
+  backBtn.onclick = () => {
+    jsonOutput.style.display = 'none';
+    subfeaturesDiv.style.display = 'none';
+    backBtn.style.display = 'none';
+    featuresDiv.style.display = 'flex';
+  };
+
+  // Init
+  renderFeatures();
+
+</script>
+
+</body>
+</html>
