@@ -13,30 +13,33 @@ export default async function handler(req, res) {
   try {
     const api = `https://api.tiklydown.me/api/download?url=${encodeURIComponent(url)}`;
     const response = await fetch(api);
+    if (!response.ok) throw new Error('Gagal fetch API eksternal');
+
     const data = await response.json();
 
     if (data?.video?.no_watermark) {
-      res.status(200).json({
+      return res.status(200).json({
         status: true,
         creator: 'AnimeVerse',
         result: {
-          title: data.description,
-          thumbnail: data.cover,
-          duration: data.duration,
+          title: data.description || 'No Title',
+          thumbnail: data.cover || '',
+          duration: data.duration || 0,
           download: data.video.no_watermark,
         },
       });
     } else {
-      res.status(404).json({
+      return res.status(404).json({
         status: false,
         message: 'Gagal mengambil video. Cek URL-nya bre.',
       });
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
+  } catch (error) {
+    console.error('Error:', error.message);
+    return res.status(500).json({
       status: false,
       message: 'Server error.',
+      error: error.message,
     });
   }
 }
