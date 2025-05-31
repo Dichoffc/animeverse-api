@@ -1,12 +1,20 @@
-// server.js (untuk lokal development / Express) import express from 'express'; import cors from 'cors'; import path from 'path'; import { fileURLToPath } from 'url';
+const express = require('express');
+const app = express();
+const path = require('path');
 
-const __filename = fileURLToPath(import.meta.url); const __dirname = path.dirname(__filename);
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 
-const app = express(); const PORT = process.env.PORT || 3000;
+// Main landing page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/index.html'));
+});
 
-app.use(cors()); app.use(express.json()); app.use(express.static(path.join(__dirname, 'public')));
+// API endpoint overview
+app.use('/api', require('./api/index'));
 
-// API endpoint app.get('/api', (req, res) => { res.status(200).json({ status: true, message: "Welcome to AnimeVerse API", endpoints: { download: "/api/download", tools: "/api/tools", ai: "/api/ai" } }); });
-
-// Start server app.listen(PORT, () => { console.log(Server running at http://localhost:${PORT}); });
-
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
