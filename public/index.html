@@ -2,95 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AnimeVerse - Landing Page</title>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet" />
+  <title>AnimeVerse API</title>
   <style>
-    * {
-      margin: 0; padding: 0; box-sizing: border-box;
-      font-family: 'Rubik', sans-serif;
-    }
     body {
-      background: url('https://pomf2.lain.la/f/s52zh3wg.gif') no-repeat center center fixed;
-      background-size: cover;
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
       color: #fff;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      padding: 2rem 1rem 4rem;
-      user-select: none;
-    }
-    .container {
+      padding: 2rem;
       text-align: center;
-      padding: 2.5rem 3rem;
-      background: rgba(0, 0, 0, 0.55);
-      border-radius: 20px;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-      max-width: 700px;
-      backdrop-filter: blur(8px);
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
     }
     h1 {
-      font-size: 3rem;
       color: #1abc9c;
-      text-shadow: 0 0 8px #1abc9c, 0 0 16px #16a085;
-      animation: glowTosca 2.5s infinite alternate;
+      margin-bottom: 2rem;
     }
-    @keyframes glowTosca {
-      from { text-shadow: 0 0 8px #1abc9c, 0 0 16px #16a085; }
-      to { text-shadow: 0 0 16px #1abc9c, 0 0 30px #16a085; }
+    .section {
+      margin: 1.5rem 0;
     }
-    .button-row {
-      display: flex;
-      justify-content: center;
-      gap: 1.4rem;
-      flex-wrap: wrap;
-      margin-top: 0.8rem;
-    }
-    .btn-link {
-      display: inline-block;
+    .btn {
       background: #1abc9c;
-      border: 2px solid #16a085;
-      padding: 0.9rem 1.8rem;
-      font-size: 1.1rem;
       color: white;
-      border-radius: 15px;
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 10px;
+      margin: 0.5rem;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(26, 188, 156, 0.6);
-      text-decoration: none;
-      transition: transform 0.3s, background 0.3s, border-color 0.3s;
-      max-width: 220px;
-      user-select: none;
-      text-align: center;
     }
-    .btn-link:hover {
+    .btn:hover {
       background: #16a085;
-      border-color: #13a27a;
-      transform: scale(1.1);
-      box-shadow: 0 0 20px rgba(22, 160, 133, 0.8);
     }
-    .credits {
-      margin-top: 1.5rem;
-      font-size: 0.9rem;
-      color: #1abc9c;
-      text-shadow: 0 0 5px #16a085;
-      font-weight: 500;
-      user-select: none;
+    .endpoint-list {
+      display: none;
+      margin-top: 1rem;
+    }
+    .endpoint-list a {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      margin: 0.3rem 0;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Welcome to AnimeVerse</h1>
-    <p>Discover your favorite anime world in a modern and interactive way!</p>
-    <div class="button-row">
-      <a href="/api" class="btn-link" target="_self" rel="noopener noreferrer">Explore API</a>
+  <h1>AnimeVerse Public API</h1>
+
+  <div class="section">
+    <button class="btn" onclick="toggle('download')">Download 📥</button>
+    <div id="download" class="endpoint-list">
+      <a href="/api/download/tiktok">/api/download/tiktok</a>
+      <a href="/api/download/instagram">/api/download/instagram</a>
+      <a href="/api/download/youtube">/api/download/youtube</a>
     </div>
   </div>
-  <div class="credits">© 2025 - 2030 AnimeVerse. All rights reserved.</div>
+
+  <div class="section">
+    <button class="btn" onclick="toggle('tools')">Tools 🛠</button>
+    <div id="tools" class="endpoint-list">
+      <a href="/api/tools/shortlink">/api/tools/shortlink</a>
+      <a href="/api/tools/randomtext">/api/tools/randomtext</a>
+    </div>
+  </div>
+
+  <div class="section">
+    <button class="btn" onclick="toggle('ai')">AI 🤖</button>
+    <div id="ai" class="endpoint-list">
+      <a href="/api/ai/chat">/api/ai/chat</a>
+      <a href="/api/ai/imagegen">/api/ai/imagegen</a>
+    </div>
+  </div>
+
+  <script>
+    function toggle(id) {
+      const el = document.getElementById(id);
+      el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
+  </script>
 </body>
 </html>
