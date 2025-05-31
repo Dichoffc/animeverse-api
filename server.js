@@ -1,20 +1,19 @@
 const express = require('express');
-const app = express();
 const path = require('path');
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Serve static files
+// Serve landing page
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Main landing page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/index.html'));
-});
-
-// API endpoint overview
+// API route
 app.use('/api', require('./api/index'));
 
-// Start server
-const PORT = process.env.PORT || 3000;
+// Fallback 404
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not Found' });
+});
+
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
