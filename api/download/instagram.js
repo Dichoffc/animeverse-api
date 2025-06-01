@@ -3,15 +3,12 @@ import fetch from 'node-fetch';
 export default async function handler(req, res) {
   const { url } = req.query;
 
-  if (!url || !url.includes('instagram.com')) {
-    return res.status(400).json({ error: 'URL Instagram harus valid' });
+  if (!url || !url.includes('instagram.com/p/')) {
+    return res.status(400).json({ error: 'URL harus posting Instagram publik' });
   }
 
   try {
-    // Request ke saveclip.app
-    const targetUrl = `https://saveclip.app/en/download?url=${encodeURIComponent(url)}`;
-
-    const response = await fetch(targetUrl, {
+    const response = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
         'Accept-Language': 'en-US,en;q=0.9',
@@ -19,28 +16,31 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      return res.status(500).json({ error: 'Gagal request ke saveclip.app' });
+      return res.status(404).json({ error: 'Posting tidak ditemukan atau private' });
     }
 
     const html = await response.text();
 
-    // Cari link download dari tombol <a href="..." class="btn-download">
-    const regex = /<a[^>]+href="([^"]+)"[^>]*class="btn-download"[^>]*>/g;
+    const jsonMatch = html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/);
 
-    let match;
-    const links = [];
-
-    while ((match = regex.exec(html)) !== null) {
-      links.push(match[1]);
+    if (!jsonMatch) {
+      return res.status(404).json({ error: 'Gagal menemukan data media' });
     }
 
-    if (links.length === 0) {
-      return res.status(404).json({ error: 'Link download tidak ditemukan di saveclip.app' });
+    const data = JSON.parse(jsonMatch[1]);
+
+    let media_url = null;
+    if (data['@type'] === 'ImageObject' || data['@type'] === 'VideoObject') {
+      media_url = data.contentUrl;
     }
 
-    return res.status(200).json({ success: true, download_links: links });
+    if (!media_url) {
+      return res.status(404).json({ error: 'Media tidak ditemukan' });
+    }
+
+    return res.status(200).json({ media_url });
 
   } catch (error) {
-    return res.status(500).json({ error: 'Error: ' + error.message });
+    return res.status(500).json({ error: 'Error saat mengambil data: ' + error.message });
   }
 }
