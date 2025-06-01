@@ -4,47 +4,45 @@ export default async function handler(req, res) {
   const { url } = req.query;
 
   if (!url || !url.includes('instagram.com')) {
-    return res.status(400).json({ error: 'URL Instagram harus diisi dan valid' });
+    return res.status(400).json({ error: 'URL Instagram harus valid' });
   }
 
   try {
-    // Request ke fastdl.app dengan URL Instagram yang mau di-download
-    const fastdlUrl = `https://fastdl.app/en/download?url=${encodeURIComponent(url)}`;
+    // Request ke igram.io dengan URL Instagram yang ingin didownload
+    const formData = new URLSearchParams();
+    formData.append('url', url);
 
-    const response = await fetch(fastdlUrl, {
+    const response = await fetch('https://igram.io/i/', {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        'Accept-Language': 'en-US,en;q=0.9',
       },
+      body: formData.toString(),
     });
 
     if (!response.ok) {
-      return res.status(500).json({ error: 'Gagal request ke fastdl.app' });
+      return res.status(500).json({ error: 'Gagal request ke igram.io' });
     }
 
     const html = await response.text();
 
-    // Parsing simple: cari semua link download dari tombol/elemen yang biasa ada di fastdl.app
-    // Biasanya ada di <a href="..." class="btn-download"> atau <a href="..." target="_blank">
-    // Kita ambil yang ada "download" atau "instagram" di href-nya
-    const regex = /<a[^>]+href="([^"]+)"[^>]*>(?:Download|download|Download Video|download video)?<\/a>/g;
+    // Cari link download dari response HTML
+    // Biasanya link ada di <a href="..." class="btn btn-primary">Download</a>
+    const regex = /<a[^>]+href="([^"]+)"[^>]*class="btn btn-primary"[^>]*>/g;
 
     let match;
     const links = [];
 
     while ((match = regex.exec(html)) !== null) {
-      const link = match[1];
-      if (link.includes('instagram') || link.includes('cdn')) {
-        links.push(link);
-      }
+      links.push(match[1]);
     }
 
     if (links.length === 0) {
-      return res.status(404).json({ error: 'Link download tidak ditemukan di fastdl.app' });
+      return res.status(404).json({ error: 'Link download tidak ditemukan' });
     }
 
     return res.status(200).json({ success: true, download_links: links });
-
   } catch (error) {
     return res.status(500).json({ error: 'Error: ' + error.message });
   }
