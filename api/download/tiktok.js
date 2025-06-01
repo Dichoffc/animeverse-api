@@ -11,40 +11,28 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Resolve redirect jika link menggunakan vt.tiktok.com
+    // Resolve shortlink jika pakai vt.tiktok.com
     const resolvedUrl = await fetch(url, { method: 'HEAD', redirect: 'follow' })
-      .then((response) => response.url)
-      .catch(() => url); // fallback kalau gagal resolve
+      .then((res) => res.url)
+      .catch(() => url);
 
     const api = `https://api.tiklydown.me/api/download?url=${encodeURIComponent(resolvedUrl)}`;
     const response = await fetch(api);
     const data = await response.json();
 
-    if (data?.video?.no_watermark) {
-      return res.status(200).json({
-        status: true,
-        creator: 'AnimeVerse',
-        result: {
-          title: data.description || 'Video TikTok',
-          thumbnail: data.cover,
-          duration: data.duration,
-          download: {
-            video: data.video.no_watermark,
-            music: data.music,
-          },
-        },
-      });
-    } else {
-      return res.status(404).json({
+    if (!data || !data.video?.no_watermark) {
+      return res.status(400).json({
         status: false,
-        message: 'Gagal mengambil video. Pastikan link TikTok valid.',
+        message: 'Gagal mengambil video. Coba gunakan link langsung dari aplikasi TikTok.',
       });
     }
-  } catch (err) {
-    console.error('Server Error:', err.message);
+
+    return res.redirect(data.video.no_watermark); // Redirect langsung ke video
+  } catch (error) {
+    console.error('Download Error:', error.message);
     return res.status(500).json({
       status: false,
-      message: 'Terjadi kesalahan pada server.',
+      message: 'Terjadi error saat memproses link.',
     });
   }
 }
