@@ -14,11 +14,11 @@
   "author": "Didi Gunawan",
   "license": "MIT",
   "dependencies": {
-    "axios": "latest",
+    "axios": "^1.6.7",
     "cheerio": "^1.0.0-rc.12",
     "form-data": "^4.0.0",
     "jsdom": "^22.1.0",
-    "node-fetch": "latest"
+    "node-fetch": "^3.3.2"
   },
   "engines": {
     "node": ">=18.0.0"
