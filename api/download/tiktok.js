@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import * as cheerio from 'cheerio';
 
 export default async function handler(req, res) {
   const { url } = req.query;
@@ -11,28 +12,46 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Resolve shortlink jika pakai vt.tiktok.com
-    const resolvedUrl = await fetch(url, { method: 'HEAD', redirect: 'follow' })
-      .then((res) => res.url)
-      .catch(() => url);
+    // Submit form ke SnapTik
+    const response = await fetch('https://snaptik.app/abc2', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'user-agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0 Safari/537.36',
+      },
+      body: `url=${encodeURIComponent(url)}`,
+    });
 
-    const api = `https://api.tiklydown.me/api/download?url=${encodeURIComponent(resolvedUrl)}`;
-    const response = await fetch(api);
-    const data = await response.json();
+    const html = await response.text();
+    const $ = cheerio.load(html);
 
-    if (!data || !data.video?.no_watermark) {
-      return res.status(400).json({
+    const result = [];
+    $('a.download-file').each((_, el) => {
+      const href = $(el).attr('href');
+      const quality = $(el).text().trim();
+      if (href && href.startsWith('https')) {
+        result.push({ quality, url: href });
+      }
+    });
+
+    if (!result.length) {
+      return res.status(404).json({
         status: false,
-        message: 'Gagal mengambil video. Coba gunakan link langsung dari aplikasi TikTok.',
+        message: 'Gagal mengambil video. Coba URL lain atau SnapTik sedang error.',
       });
     }
 
-    return res.redirect(data.video.no_watermark); // Redirect langsung ke video
-  } catch (error) {
-    console.error('Download Error:', error.message);
-    return res.status(500).json({
+    res.status(200).json({
+      status: true,
+      creator: 'AnimeVerse',
+      result,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
       status: false,
-      message: 'Terjadi error saat memproses link.',
+      message: 'Terjadi kesalahan server.',
     });
   }
 }
