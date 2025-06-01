@@ -1,7 +1,9 @@
 {
   "name": "animeverse-api",
   "version": "1.0.0",
-  "description": "API AnimeVerse lengkap untuk download, scraping, dan tools",
+  "description": "API AnimeVerse lengkap untuk download, scraping, dan tools.",
+  "type": "module",
+  "main": "index.js",
   "keywords": [
     "animeverse",
     "api",
@@ -14,10 +16,13 @@
   "author": "Didi Gunawan",
   "license": "MIT",
   "dependencies": {
-    "axios": "latest",
-    "node-fetch": "latest",
-    "jsdom": "^22.1.0",
+    "axios": "^1.6.7",
     "cheerio": "^1.0.0-rc.12",
-    "form-data": "^4.0.0"
+    "form-data": "^4.0.0",
+    "jsdom": "^22.1.0",
+    "node-fetch": "^3.4.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
