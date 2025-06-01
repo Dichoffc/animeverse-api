@@ -1,68 +1,38 @@
-import axios from 'axios';
-import cheerio from 'cheerio';
+import fetch from 'node-fetch';
 
-export default async function handler(req, res) {
-  const { url } = req.query;
+async function downloadInstagram(instagramUrl) {
+  if (!instagramUrl) throw new Error('Parameter instagramUrl wajib diisi');
 
-  if (!url) {
-    return res
-      .status(406)
-      .setHeader('Content-Type', 'application/json')
-      .send({
-        status: false,
-        creator: 'Kyy',
-        code: 406,
-        message: 'masukkan parameter url'
-      });
-  }
+  const encoded = encodeURIComponent(instagramUrl);
+  const api = `https://r-nozawa.hf.space/aio?url=${encoded}`;
 
+  const res = await fetch(api);
+  if (!res.ok) throw new Error(`Gagal request, status: ${res.status}`);
+
+  const text = await res.text();
+
+  // coba parse JSON, kalau gagal throw error
   try {
-    // Contoh: memakai igram.io (bisa kamu ganti sesuai endpoint aslinya)
-    const { data } = await axios.post(
-      'https://igram.io/i/',
-      new URLSearchParams({ url }),
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'Mozilla/5.0',
-          'Referer': 'https://igram.io/',
-          'Origin': 'https://igram.io'
-        }
-      }
-    );
-
-    const $ = cheerio.load(data);
-    const links = [];
-
-    $('a.btn-download').each((i, el) => {
-      const href = $(el).attr('href');
-      if (href && href.startsWith('http')) {
-        links.push(href);
-      }
-    });
-
-    if (!links.length) {
-      return res.status(404).json({
-        status: false,
-        creator: 'Kyy',
-        code: 404,
-        message: 'Media tidak ditemukan atau url tidak valid'
-      });
-    }
-
-    return res.status(200).json({
-      status: true,
-      creator: 'Kyy',
-      type: 'media',
-      result: links
-    });
-
-  } catch (e) {
-    return res.status(500).json({
-      status: false,
-      creator: 'Kyy',
-      code: 500,
-      message: `Terjadi kesalahan: ${e.message}`
-    });
+    const json = JSON.parse(text);
+    return json;
+  } catch {
+    throw new Error('Response bukan JSON valid');
   }
 }
+
+// Ambil URL dari argumen command line
+const inputUrl = process.argv[2];
+
+if (!inputUrl) {
+  console.error('Usage: node Instagram.js <instagram_url>');
+  process.exit(1);
+}
+
+(async () => {
+  try {
+    const result = await downloadInstagram(inputUrl);
+    console.log('Response JSON:\n', JSON.stringify(result, null, 2));
+  } catch (err) {
+    console.error('Error:', err.message);
+  }
+})();
