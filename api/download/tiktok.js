@@ -1,54 +1,32 @@
-import fetch from 'node-fetch';
-import { JSDOM } from 'jsdom';
+import axios from 'axios';
 
 export default async function handler(req, res) {
-  const { url } = req.query;
-  if (!url) {
-    return res.status(400).json({
-      status: false,
-      message: 'Masukkan parameter ?url=https://tiktok.com/...',
-    });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Metode tidak diizinkan' });
+  }
+
+  const { url } = req.body;
+
+  if (!url || !url.includes('tiktok.com')) {
+    return res.status(400).json({ error: 'URL TikTok tidak valid' });
   }
 
   try {
-    // Kirim POST ke snaptik.app dengan URL tiktok-nya
-    const response = await fetch('https://snaptik.app/abc', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0',
-      },
-      body: `url=${encodeURIComponent(url)}`,
-    });
-    const text = await response.text();
+    const response = await axios.get(`https://api.tiklydown.me/api/download?url=${encodeURIComponent(url)}`);
+    const data = response.data;
 
-    // Parse HTML hasil response
-    const dom = new JSDOM(text);
-    const document = dom.window.document;
-
-    // Cari link download video tanpa watermark
-    const videoLink = document.querySelector('a[href*="snaptik.app"]');
-    const noWatermark = videoLink ? videoLink.href : null;
-
-    if (!noWatermark) {
-      return res.status(404).json({
-        status: false,
-        message: 'Video tidak ditemukan / gagal mengambil link download.',
-      });
+    if (!data || !data.video) {
+      return res.status(500).json({ error: 'Gagal mengambil data dari TiklyDown' });
     }
 
-    res.status(200).json({
-      status: true,
-      creator: 'AnimeVerse',
-      result: {
-        download_no_watermark: noWatermark,
-      },
+    return res.status(200).json({
+      author: data.author_name,
+      title: data.title,
+      video_no_watermark: data.video,
+      thumbnail: data.thumbnail,
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      status: false,
-      message: 'Server error.',
-    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Terjadi kesalahan saat memproses permintaan' });
   }
 }
