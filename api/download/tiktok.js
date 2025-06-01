@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
-  const { url, format } = req.query;
+  const { url, format = 'mp4' } = req.query;
 
   if (!url) {
     return res.status(400).json({
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     if (!data?.video?.no_watermark) {
       return res.status(404).json({
         status: false,
-        message: 'Gagal mengambil video. Cek URL-nya bre.',
+        message: 'Video tidak ditemukan atau URL salah.',
       });
     }
 
@@ -26,26 +26,28 @@ export default async function handler(req, res) {
       title: data.description,
       thumbnail: data.cover,
       duration: data.duration,
+      video_url: data.video.no_watermark,
+      audio_url: data.music,
     };
 
-    if (format === 'mp3') {
-      result.download = data.music;
-      result.type = 'audio';
+    // Redirect langsung kalau format dipilih
+    if (format === 'mp4') {
+      return res.redirect(result.video_url);
+    } else if (format === 'mp3') {
+      return res.redirect(result.audio_url);
     } else {
-      result.download = data.video.no_watermark;
-      result.type = 'video';
+      // Default JSON result
+      return res.status(200).json({
+        status: true,
+        creator: 'AnimeVerse',
+        result,
+      });
     }
-
-    res.status(200).json({
-      status: true,
-      creator: 'AnimeVerse',
-      result,
-    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({
+    console.error('Error saat ambil data:', err);
+    return res.status(500).json({
       status: false,
-      message: 'Server error.',
+      message: 'Server error, coba lagi bre.',
     });
   }
 }
