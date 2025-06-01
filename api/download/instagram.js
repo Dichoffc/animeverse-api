@@ -8,28 +8,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Request ke igram.io dengan URL Instagram yang ingin didownload
-    const formData = new URLSearchParams();
-    formData.append('url', url);
+    // Request ke saveclip.app
+    const targetUrl = `https://saveclip.app/en/download?url=${encodeURIComponent(url)}`;
 
-    const response = await fetch('https://igram.io/i/', {
-      method: 'POST',
+    const response = await fetch(targetUrl, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        'Accept-Language': 'en-US,en;q=0.9',
       },
-      body: formData.toString(),
     });
 
     if (!response.ok) {
-      return res.status(500).json({ error: 'Gagal request ke igram.io' });
+      return res.status(500).json({ error: 'Gagal request ke saveclip.app' });
     }
 
     const html = await response.text();
 
-    // Cari link download dari response HTML
-    // Biasanya link ada di <a href="..." class="btn btn-primary">Download</a>
-    const regex = /<a[^>]+href="([^"]+)"[^>]*class="btn btn-primary"[^>]*>/g;
+    // Cari link download dari tombol <a href="..." class="btn-download">
+    const regex = /<a[^>]+href="([^"]+)"[^>]*class="btn-download"[^>]*>/g;
 
     let match;
     const links = [];
@@ -39,10 +35,11 @@ export default async function handler(req, res) {
     }
 
     if (links.length === 0) {
-      return res.status(404).json({ error: 'Link download tidak ditemukan' });
+      return res.status(404).json({ error: 'Link download tidak ditemukan di saveclip.app' });
     }
 
     return res.status(200).json({ success: true, download_links: links });
+
   } catch (error) {
     return res.status(500).json({ error: 'Error: ' + error.message });
   }
