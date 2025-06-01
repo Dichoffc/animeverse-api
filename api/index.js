@@ -56,13 +56,16 @@ export default function handler(req, res) {
           margin-top: 1rem;
           text-align: center;
         }
-        input[type="text"] {
+        input[type="text"], textarea {
           width: 300px;
           padding: 0.5rem 0.7rem;
           border-radius: 8px;
           border: none;
           font-size: 1rem;
           margin-right: 0.5rem;
+        }
+        textarea {
+          resize: vertical;
         }
         .submit-btn {
           background: #16a085;
@@ -129,7 +132,6 @@ export default function handler(req, res) {
               <button class="submit-btn" onclick="submitUrl('\${service}')">Download</button>
             </div>
           \`;
-          // Clear AI chat container if visible
           document.getElementById('ai-chat-container').innerHTML = '';
         }
 
@@ -140,7 +142,6 @@ export default function handler(req, res) {
             alert('Masukkan URL dulu bre!');
             return;
           }
-          // Arahkan ke endpoint download dengan param url
           window.location.href = \`/api/download/\${service}?url=\` + encodeURIComponent(url);
         }
 
@@ -148,13 +149,12 @@ export default function handler(req, res) {
           const container = document.getElementById('ai-chat-container');
           container.innerHTML = \`
             <div style="max-width: 400px; margin: 0 auto;">
-              <textarea id="ai-prompt" rows="4" style="width:100%; padding:0.5rem; border-radius:8px; border:none; font-size:1rem;" placeholder="Masukkan prompt AI (optional)"></textarea>
-              <input type="text" id="ai-question" placeholder="Tanya sesuatu..." style="width:100%; margin-top:0.5rem; padding:0.5rem; border-radius:8px; border:none; font-size:1rem;" />
+              <textarea id="ai-prompt" rows="4" placeholder="Masukkan prompt AI (optional)"></textarea>
+              <input type="text" id="ai-question" placeholder="Tanya sesuatu..." style="margin-top:0.5rem;" />
               <button class="submit-btn" style="margin-top:0.7rem; width: 100%;" onclick="askAI()">Kirim</button>
               <pre id="ai-response" style="background:#111; color:#0f0; padding:1rem; border-radius:8px; margin-top:1rem; height: 150px; overflow-y: auto;"></pre>
             </div>
           \`;
-          // Clear download form container if visible
           document.getElementById('form-container').innerHTML = '';
         }
 
