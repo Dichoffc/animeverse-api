@@ -14,7 +14,7 @@
   "author": "Didi Gunawan",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.4.0",
+    "axios": "^1.6.8",
     "node-fetch": "^2.6.7",
     "jsdom": "^22.1.0",
     "cheerio": "^1.0.0-rc.12",
