@@ -1,27 +1,47 @@
-import axios from 'axios';
+import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
   const { url } = req.query;
 
-  if (!url) {
-    return res.status(400).json({ error: 'URL is required' });
+  if (!url || !url.includes('instagram.com/p/')) {
+    return res.status(400).json({ error: 'URL harus posting Instagram publik' });
   }
 
   try {
-    // Ganti dengan API gratis atau endpoint pihak ketiga yang support
-    const response = await axios.get(`https://api.tiklydown.com/api/download/ig?url=${encodeURIComponent(url)}`);
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+      },
+    });
 
-    if (response.data && response.data.data) {
-      return res.status(200).json({
-        success: true,
-        data: response.data.data,
-      });
-    } else {
-      return res.status(404).json({ success: false, error: 'No media found' });
+    if (!response.ok) {
+      return res.status(404).json({ error: 'Posting tidak ditemukan atau private' });
     }
 
+    const html = await response.text();
+
+    // Cari data JSON di script ld+json
+    const jsonMatch = html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/);
+    if (!jsonMatch) {
+      return res.status(404).json({ error: 'Gagal menemukan data media' });
+    }
+
+    const data = JSON.parse(jsonMatch[1]);
+
+    let media_url = null;
+    if (data['@type'] === 'ImageObject') {
+      media_url = data.contentUrl;
+    } else if (data['@type'] === 'VideoObject') {
+      media_url = data.contentUrl;
+    }
+
+    if (!media_url) {
+      return res.status(404).json({ error: 'Media tidak ditemukan' });
+    }
+
+    return res.status(200).json({ media_url });
+
   } catch (error) {
-    console.error('IG Download Error:', error.message);
-    return res.status(500).json({ error: 'Failed to fetch media' });
+    return res.status(500).json({ error: 'Error saat mengambil data: ' + error.message });
   }
-      }
+}
