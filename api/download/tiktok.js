@@ -1,32 +1,35 @@
-import axios from 'axios';
+import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Metode tidak diizinkan' });
-  }
+  const { url } = req.query;
 
-  const { url } = req.body;
-
-  if (!url || !url.includes('tiktok.com')) {
-    return res.status(400).json({ error: 'URL TikTok tidak valid' });
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      message: 'Masukkan parameter url'
+    });
   }
 
   try {
-    const response = await axios.get(`https://api.tiklydown.me/api/download?url=${encodeURIComponent(url)}`);
-    const data = response.data;
+    const response = await fetch(`https://api.tiklydown.me/api/download?url=${encodeURIComponent(url)}`);
+    const data = await response.json();
 
     if (!data || !data.video) {
-      return res.status(500).json({ error: 'Gagal mengambil data dari TiklyDown' });
+      return res.status(404).json({
+        status: false,
+        message: 'Video tidak ditemukan atau URL tidak valid'
+      });
     }
 
     return res.status(200).json({
-      author: data.author_name,
-      title: data.title,
-      video_no_watermark: data.video,
-      thumbnail: data.thumbnail,
+      status: true,
+      source: 'tiklydown',
+      result: data
     });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Terjadi kesalahan saat memproses permintaan' });
+  } catch (e) {
+    return res.status(500).json({
+      status: false,
+      message: `Terjadi kesalahan: ${e.message}`
+    });
   }
 }
