@@ -1,38 +1,47 @@
 import fetch from 'node-fetch';
 
-async function downloadInstagram(instagramUrl) {
-  if (!instagramUrl) throw new Error('Parameter instagramUrl wajib diisi');
-
-  const encoded = encodeURIComponent(instagramUrl);
-  const api = `https://r-nozawa.hf.space/aio?url=${encoded}`;
-
-  const res = await fetch(api);
-  if (!res.ok) throw new Error(`Gagal request, status: ${res.status}`);
-
-  const text = await res.text();
-
-  // coba parse JSON, kalau gagal throw error
+export async function GET(request) {
   try {
-    const json = JSON.parse(text);
-    return json;
-  } catch {
-    throw new Error('Response bukan JSON valid');
-  }
-}
+    const { searchParams } = new URL(request.url);
+    const targetUrl = searchParams.get('url');
 
-// Ambil URL dari argumen command line
-const inputUrl = process.argv[2];
+    if (!targetUrl) {
+      return new Response(JSON.stringify({ error: 'Parameter url wajib diisi' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
-if (!inputUrl) {
-  console.error('Usage: node Instagram.js <instagram_url>');
-  process.exit(1);
-}
+    const encodedUrl = encodeURIComponent(targetUrl);
+    const apiUrl = `https://r-nozawa.hf.space/aio?url=${encodedUrl}`;
 
-(async () => {
-  try {
-    const result = await downloadInstagram(inputUrl);
-    console.log('Response JSON:\n', JSON.stringify(result, null, 2));
+    const res = await fetch(apiUrl);
+    if (!res.ok) {
+      return new Response(JSON.stringify({ error: 'Gagal request ke sumber' }), {
+        status: res.status,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const text = await res.text();
+
+    try {
+      const json = JSON.parse(text);
+      return new Response(JSON.stringify(json), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    } catch {
+      // Kalau bukan JSON valid, return error
+      return new Response(JSON.stringify({ error: 'Response bukan JSON valid' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
   } catch (err) {
-    console.error('Error:', err.message);
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
-})();
+}
