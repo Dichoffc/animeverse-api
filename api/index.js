@@ -92,6 +92,10 @@ export default function handler(req, res) {
         <div class="btn-list">
           <button class="btn" onclick="showForm('tiktok')">TikTok</button>
           <button class="btn" onclick="showForm('instagram')">Instagram</button>
+          <button class="btn" onclick="showForm('twitter')">Twitter</button>
+          <button class="btn" onclick="showForm('facebook')">Facebook</button>
+          <button class="btn" onclick="showForm('youtube')">YouTube</button>
+          <button class="btn" onclick="showForm('spotify')">Spotify</button>
         </div>
         <div id="form-container"></div>
       </div>
@@ -99,18 +103,22 @@ export default function handler(req, res) {
       <div class="section">
         <h2>Tools</h2>
         <div class="btn-list">
-          <a href="/api/tools/base64" class="btn">Base64 Encode</a>
+          <a href="/api/tools/base64" class="btn" target="_blank" rel="noopener noreferrer">Base64 Encode</a>
+          <a href="/api/tools/enhancer" class="btn" target="_blank" rel="noopener noreferrer">Enhancer HD</a>
+          <a href="/api/tools/encrypt" class="btn" target="_blank" rel="noopener noreferrer">Encrypt</a>
+          <a href="/api/tools/decrypt" class="btn" target="_blank" rel="noopener noreferrer">Decrypt</a>
         </div>
       </div>
 
       <div class="section">
         <h2>AI</h2>
         <div class="btn-list">
-          <a href="/api/ai/chat" class="btn">Chat AI</a>
+          <button class="btn" onclick="showAIChat()">Chat AI</button>
         </div>
+        <div id="ai-chat-container" style="margin-top: 1rem;"></div>
       </div>
 
-      <footer>© 2025 - AnimeVerse API</footer>
+      <footer>© 2025 - AnimeVerse API | Created by Dichxploit</footer>
 
       <script>
         function showForm(service) {
@@ -121,6 +129,8 @@ export default function handler(req, res) {
               <button class="submit-btn" onclick="submitUrl('\${service}')">Download</button>
             </div>
           \`;
+          // Clear AI chat container if visible
+          document.getElementById('ai-chat-container').innerHTML = '';
         }
 
         function submitUrl(service) {
@@ -132,6 +142,51 @@ export default function handler(req, res) {
           }
           // Arahkan ke endpoint download dengan param url
           window.location.href = \`/api/download/\${service}?url=\` + encodeURIComponent(url);
+        }
+
+        function showAIChat() {
+          const container = document.getElementById('ai-chat-container');
+          container.innerHTML = \`
+            <div style="max-width: 400px; margin: 0 auto;">
+              <textarea id="ai-prompt" rows="4" style="width:100%; padding:0.5rem; border-radius:8px; border:none; font-size:1rem;" placeholder="Masukkan prompt AI (optional)"></textarea>
+              <input type="text" id="ai-question" placeholder="Tanya sesuatu..." style="width:100%; margin-top:0.5rem; padding:0.5rem; border-radius:8px; border:none; font-size:1rem;" />
+              <button class="submit-btn" style="margin-top:0.7rem; width: 100%;" onclick="askAI()">Kirim</button>
+              <pre id="ai-response" style="background:#111; color:#0f0; padding:1rem; border-radius:8px; margin-top:1rem; height: 150px; overflow-y: auto;"></pre>
+            </div>
+          \`;
+          // Clear download form container if visible
+          document.getElementById('form-container').innerHTML = '';
+        }
+
+        async function askAI() {
+          const prompt = document.getElementById('ai-prompt').value.trim();
+          const question = document.getElementById('ai-question').value.trim();
+          const responseBox = document.getElementById('ai-response');
+
+          if (!question) {
+            alert('Masukkan pertanyaan dulu bre!');
+            return;
+          }
+
+          responseBox.textContent = 'Loading...';
+
+          try {
+            const res = await fetch('/api/ai/chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ prompt, question })
+            });
+
+            const data = await res.json();
+
+            if (data.status) {
+              responseBox.textContent = data.response;
+            } else {
+              responseBox.textContent = 'Error: ' + (data.message || 'Gagal mendapatkan respon AI');
+            }
+          } catch (error) {
+            responseBox.textContent = 'Fetch error: ' + error.message;
+          }
         }
       </script>
     </body>
