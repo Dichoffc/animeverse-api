@@ -3,15 +3,13 @@
   "version": "1.0.0",
   "description": "API AnimeVerse lengkap untuk download, scraping, dan tools.",
   "type": "module",
-  "main": "index.js",
   "keywords": [
     "animeverse",
     "api",
     "download",
     "scraping",
-    "tiktok",
     "instagram",
-    "tools"
+    "tiktok"
   ],
   "author": "Didi Gunawan",
   "license": "MIT",
