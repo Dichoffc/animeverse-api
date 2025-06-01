@@ -1,5 +1,4 @@
 import fetch from 'node-fetch';
-import * as cheerio from 'cheerio';
 
 export default async function handler(req, res) {
   const { url } = req.query;
@@ -12,46 +11,37 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Submit form ke SnapTik
-    const response = await fetch('https://snaptik.app/abc2', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-        'user-agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0 Safari/537.36',
-      },
-      body: `url=${encodeURIComponent(url)}`,
-    });
+    // Endpoint TikWM untuk download video TikTok
+    const api = `https://api.tikwm.com/v1/video/detail?url=${encodeURIComponent(url)}`;
 
-    const html = await response.text();
-    const $ = cheerio.load(html);
+    const response = await fetch(api);
+    const data = await response.json();
 
-    const result = [];
-    $('a.download-file').each((_, el) => {
-      const href = $(el).attr('href');
-      const quality = $(el).text().trim();
-      if (href && href.startsWith('https')) {
-        result.push({ quality, url: href });
-      }
-    });
-
-    if (!result.length) {
-      return res.status(404).json({
+    if (data && data.success && data.data && data.data.video) {
+      res.status(200).json({
+        status: true,
+        creator: 'AnimeVerse',
+        result: {
+          title: data.data.title || '',
+          author: data.data.author || '',
+          duration: data.data.duration || '',
+          thumbnail: data.data.cover || '',
+          download: data.data.video.play || '',        // Video tanpa watermark
+          download_no_watermark: data.data.video.no_watermark || '', // Kalau ada video no watermark
+          music: data.data.music || '',                 // Link musik (MP3)
+        },
+      });
+    } else {
+      res.status(404).json({
         status: false,
-        message: 'Gagal mengambil video. Coba URL lain atau SnapTik sedang error.',
+        message: 'Gagal mengambil video. Cek URL-nya bre.',
       });
     }
-
-    res.status(200).json({
-      status: true,
-      creator: 'AnimeVerse',
-      result,
-    });
   } catch (err) {
     console.error(err);
     res.status(500).json({
       status: false,
-      message: 'Terjadi kesalahan server.',
+      message: 'Server error.',
     });
   }
 }
