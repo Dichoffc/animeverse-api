@@ -1,21 +1,33 @@
 {
   "name": "animeverse-api",
   "version": "1.0.0",
-  "description": "Free AnimeVerse API - Downloaders, Tools, AI endpoints",
+  "description": "API AnimeVerse lengkap untuk download, scraping, dan tools",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "dev": "vercel dev",
-    "start": "vercel dev"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "keywords": [
-    "api",
     "animeverse",
+    "api",
     "download",
-    "tools",
-    "ai"
+    "scraping",
+    "tiktok",
+    "instagram",
+    "tools"
   ],
-  "author": "AnimeVerse Team",
+  "author": "Didi Gunawan",
   "license": "MIT",
-  "dependencies": {}
+  "dependencies": {
+    "axios": "^1.4.0",               // HTTP client powerful dan mudah
+    "node-fetch": "^3.4.0",         // Fetch API untuk Node.js
+    "jsdom": "^22.1.0",             // Untuk parsing HTML dan DOM manipulation
+    "cheerio": "^1.0.0-rc.12",      // Lightweight jQuery-like untuk scraping HTML
+    "form-data": "^4.0.0",          // Untuk kirim form-data kalau perlu upload atau post data
+    "express": "^4.18.2",           // Kalau mau bikin server api pake express
+    "cors": "^2.8.5"                // Buat enable CORS kalau perlu akses dari browser
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"            // Biar auto reload pas develop
+  }
 }
