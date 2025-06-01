@@ -1,7 +1,20 @@
 import fetch from 'node-fetch';
 
+async function resolveRedirect(url) {
+  try {
+    const res = await fetch(url, {
+      method: 'HEAD',
+      redirect: 'follow',
+    });
+    return res.url; // URL hasil redirect
+  } catch (err) {
+    console.error('Gagal resolve shortlink:', err);
+    return url; // fallback ke URL asli
+  }
+}
+
 export default async function handler(req, res) {
-  const { url, format = 'mp4' } = req.query;
+  let { url, format = 'mp4' } = req.query;
 
   if (!url) {
     return res.status(400).json({
@@ -11,6 +24,11 @@ export default async function handler(req, res) {
   }
 
   try {
+    // ⏩ Resolve short URL kalau pakai vt.tiktok.com
+    if (url.includes('vt.tiktok.com')) {
+      url = await resolveRedirect(url);
+    }
+
     const api = `https://api.tiklydown.me/api/download?url=${encodeURIComponent(url)}`;
     const response = await fetch(api);
     const data = await response.json();
@@ -18,7 +36,7 @@ export default async function handler(req, res) {
     if (!data?.video?.no_watermark) {
       return res.status(404).json({
         status: false,
-        message: 'Video tidak ditemukan atau URL salah.',
+        message: 'Gagal mengambil video. Cek URL-nya bre.',
       });
     }
 
@@ -30,13 +48,11 @@ export default async function handler(req, res) {
       audio_url: data.music,
     };
 
-    // Redirect langsung kalau format dipilih
     if (format === 'mp4') {
       return res.redirect(result.video_url);
     } else if (format === 'mp3') {
       return res.redirect(result.audio_url);
     } else {
-      // Default JSON result
       return res.status(200).json({
         status: true,
         creator: 'AnimeVerse',
@@ -44,10 +60,10 @@ export default async function handler(req, res) {
       });
     }
   } catch (err) {
-    console.error('Error saat ambil data:', err);
+    console.error('Crash saat download:', err);
     return res.status(500).json({
       status: false,
-      message: 'Server error, coba lagi bre.',
+      message: 'Server error bro. Coba lagi bentar.',
     });
   }
 }
