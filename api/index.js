@@ -1,5 +1,5 @@
 // pages/api/index.js
-import { apiEndpoints } from '../../data/endpoints.js';
+import { apiEndpoints } from '../data/endpoints.js';
 
 export default function handler(req, res) {
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
