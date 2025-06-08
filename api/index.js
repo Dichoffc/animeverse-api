@@ -20,9 +20,28 @@ export default function handler(req, res) {
     .card { background:#1c1c1c; padding:20px; margin-bottom:20px; border-radius:8px; }
     .card h2 { margin:0 0.5rem 0.5rem; color:#1abc9c; }
     .endpoint { font-family:monospace; background:#111; padding:0.5rem; border-radius:4px; overflow-x:auto; }
-    .btn { display:inline-block; margin-top:0.5rem; background:#1abc9c; color:#fff; padding:0.5rem 1rem; text-decoration:none; border-radius:4px; }
+    .btn { display:inline-block; margin-top:0.5rem; background:#1abc9c; color:#fff; padding:0.5rem 1rem; text-decoration:none; border:none; cursor:pointer; border-radius:4px; }
     .btn:hover { background:#16a085; }
     footer { text-align:center; font-size:0.8rem; color:#888; padding:1rem; }
+    pre.json-result {
+      background: #111;
+      color: #0f0;
+      padding: 1rem;
+      margin-top: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+      max-height: 300px;
+      font-size: 0.85rem;
+    }
+    input.url-input {
+      margin-top: 0.5rem;
+      width: 100%;
+      padding: 0.4rem;
+      background: #222;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
@@ -37,33 +56,49 @@ export default function handler(req, res) {
       <div class="category" onclick="selectCat('Audio')">Audio</div>
     </nav>
     <main id="main">
-      <!-- downloader -->
-      <div class="card" data-cat="Downloader"><h2>Instagram Downloader</h2>
+      <!-- Downloader -->
+      <div class="card" data-cat="Downloader">
+        <h2>Instagram Downloader</h2>
         <div class="endpoint">/api/download/instagram?url=</div>
-        <a class="btn" href="/api/download/instagram?url=" target="_blank">Coba</a>
+        <input type="text" placeholder="Paste URL Instagram..." class="url-input" data-endpoint="/api/download/instagram" />
+        <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        <pre class="json-result"></pre>
       </div>
-      <div class="card" data-cat="Downloader"><h2>TikTok Downloader</h2>
+      <div class="card" data-cat="Downloader">
+        <h2>TikTok Downloader</h2>
         <div class="endpoint">/api/download/tiktok?url=</div>
-        <a class="btn" href="/api/download/tiktok?url=" target="_blank">Coba</a>
+        <input type="text" placeholder="Paste URL TikTok..." class="url-input" data-endpoint="/api/download/tiktok" />
+        <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        <pre class="json-result"></pre>
       </div>
-      <!-- tools -->
-      <div class="card" data-cat="Tools"><h2>Base64 Encode</h2>
-        <div class="endpoint">/api/tools/base64</div>
-        <a class="btn" href="/api/tools/base64" target="_blank">Coba</a>
-      </div>
-      <div class="card" data-cat="Tools"><h2>Enhancer HD</h2>
-        <div class="endpoint">/api/tools/enhancer</div>
-        <a class="btn" href="/api/tools/enhancer" target="_blank">Coba</a>
-      </div>
-      <!-- ai -->
-      <div class="card" data-cat="AI"><h2>Chat AI</h2>
-        <div class="endpoint">/api/ai/chat</div>
-        <a class="btn" href="/api/ai/chat" target="_blank">Coba</a>
-      </div>
-      <!-- audio -->
-      <div class="card" data-cat="Audio"><h2>Spotify Downloader</h2>
+      <div class="card" data-cat="Downloader">
+        <h2>Spotify Downloader</h2>
         <div class="endpoint">/api/download/spotify?url=</div>
-        <a class="btn" href="/api/download/spotify?url=" target="_blank">Coba</a>
+        <input type="text" placeholder="Paste URL Spotify..." class="url-input" data-endpoint="/api/download/spotify" />
+        <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        <pre class="json-result"></pre>
+      </div>
+
+      <!-- Tools -->
+      <div class="card" data-cat="Tools">
+        <h2>Base64 Encode</h2>
+        <div class="endpoint">/api/tools/base64</div>
+        <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        <pre class="json-result"></pre>
+      </div>
+      <div class="card" data-cat="Tools">
+        <h2>Enhancer HD</h2>
+        <div class="endpoint">/api/tools/enhancer</div>
+        <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        <pre class="json-result"></pre>
+      </div>
+
+      <!-- AI -->
+      <div class="card" data-cat="AI">
+        <h2>Chat AI</h2>
+        <div class="endpoint">/api/ai/chat</div>
+        <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        <pre class="json-result"></pre>
       </div>
     </main>
   </div>
@@ -74,6 +109,7 @@ export default function handler(req, res) {
       event.target.classList.add('active');
       filterCards();
     }
+
     function filterCards(){
       const cat = document.querySelector('.category.active').textContent;
       const search = document.getElementById('search').value.toLowerCase();
@@ -83,6 +119,23 @@ export default function handler(req, res) {
         const matchSearch = title.includes(search);
         card.style.display = matchCat && matchSearch ? '' : 'none';
       });
+    }
+
+    async function tryEndpoint(btn) {
+      const card = btn.closest('.card');
+      const input = card.querySelector('.url-input');
+      const pre = card.querySelector('.json-result');
+      let url = input ? input.dataset.endpoint + '?url=' + encodeURIComponent(input.value) : card.querySelector('.endpoint').textContent;
+
+      pre.textContent = 'Loading...';
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        pre.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        pre.textContent = 'Error: ' + err.message;
+      }
     }
   </script>
 </body>
