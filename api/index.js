@@ -99,6 +99,15 @@ export default function handler(req, res) {
     .btn:hover {
       background-color: #00a8cc;
     }
+    .input-url {
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      background: #2b2b2b;
+      color: #fff;
+      border-radius: 6px;
+      border: none;
+    }
     .response {
       margin-top: 1rem;
       background: #111;
@@ -108,6 +117,11 @@ export default function handler(req, res) {
       white-space: pre-wrap;
       color: #fff;
       border: 1px solid #2a2a2a;
+    }
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
     footer {
       background-color: #1f1f1f;
@@ -132,15 +146,23 @@ export default function handler(req, res) {
     <main id="main">
       <div class="card" data-cat="Downloader">
         <h2>Instagram Downloader</h2>
-        <div class="endpoint">/api/download/instagram?url=https://example.com</div>
-        <button class="btn" onclick="fetchData('/api/download/instagram?url=https://example.com', this)">Coba</button>
+        <div class="endpoint">/api/download/instagram?url=</div>
+        <input class="input-url" placeholder="Masukkan URL Instagram..." />
+        <div class="btn-group">
+          <button class="btn" onclick="pasteToInput(this)">Paste Link</button>
+          <button class="btn" onclick="fetchData('instagram', this)">Coba</button>
+        </div>
         <div class="response" style="display:none;"></div>
       </div>
 
       <div class="card" data-cat="Tools">
         <h2>Base64 Encode</h2>
         <div class="endpoint">/api/tools/base64</div>
-        <button class="btn" onclick="fetchData('/api/tools/base64', this)">Coba</button>
+        <input class="input-url" placeholder="Masukkan teks untuk encode..." />
+        <div class="btn-group">
+          <button class="btn" onclick="pasteToInput(this)">Paste Link</button>
+          <button class="btn" onclick="fetchData('base64', this)">Coba</button>
+        </div>
         <div class="response" style="display:none;"></div>
       </div>
     </main>
@@ -165,8 +187,30 @@ export default function handler(req, res) {
       });
     }
 
-    async function fetchData(endpoint, btn){
-      const responseBox = btn.nextElementSibling;
+    function pasteToInput(btn){
+      const input = btn.closest('.card').querySelector('.input-url');
+      navigator.clipboard.readText().then(text => {
+        input.value = text;
+      }).catch(() => {
+        alert('Gagal mengambil dari clipboard.');
+      });
+    }
+
+    async function fetchData(type, btn){
+      const card = btn.closest('.card');
+      const input = card.querySelector('.input-url');
+      const responseBox = card.querySelector('.response');
+      const userInput = encodeURIComponent(input.value.trim());
+
+      if (!userInput) {
+        alert('Isi dulu input-nya ya bre!');
+        return;
+      }
+
+      let endpoint = '';
+      if (type === 'instagram') endpoint = \`/api/download/instagram?url=\${userInput}\`;
+      else if (type === 'base64') endpoint = \`/api/tools/base64?text=\${userInput}\`;
+
       responseBox.style.display = 'block';
       responseBox.textContent = 'Loading...';
 
