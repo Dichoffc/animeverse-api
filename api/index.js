@@ -1,5 +1,7 @@
-// pages/api/index.js 
-export default function handler(req, res) { res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.status(200).send(`<!DOCTYPE html><html lang="id">
+export default function handler(req, res) {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.status(200).send(`<!DOCTYPE html>
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -83,10 +85,6 @@ export default function handler(req, res) { res.setHeader('Content-Type', 'text/
       overflow-x: auto;
       white-space: nowrap;
     }
-    .btn-group {
-      display: flex;
-      gap: 1rem;
-    }
     .btn {
       background-color: #00d2ff;
       color: #000;
@@ -100,6 +98,16 @@ export default function handler(req, res) { res.setHeader('Content-Type', 'text/
     }
     .btn:hover {
       background-color: #00a8cc;
+    }
+    .response {
+      margin-top: 1rem;
+      background: #111;
+      border-radius: 6px;
+      padding: 1rem;
+      font-family: monospace;
+      white-space: pre-wrap;
+      color: #fff;
+      border: 1px solid #2a2a2a;
     }
     footer {
       background-color: #1f1f1f;
@@ -122,33 +130,30 @@ export default function handler(req, res) { res.setHeader('Content-Type', 'text/
       <div class="category" onclick="selectCat('Audio')">Audio</div>
     </nav>
     <main id="main">
-      <!-- downloader -->
       <div class="card" data-cat="Downloader">
         <h2>Instagram Downloader</h2>
-        <div class="endpoint">/api/download/instagram?url=</div>
-        <div class="btn-group">
-          <a class="btn" href="/api/download/instagram?url=" target="_blank">Coba</a>
-          <button class="btn" onclick="copyToClipboard('/api/download/instagram?url=')">Copy URL</button>
-        </div>
+        <div class="endpoint">/api/download/instagram?url=https://example.com</div>
+        <button class="btn" onclick="fetchData('/api/download/instagram?url=https://example.com', this)">Coba</button>
+        <div class="response" style="display:none;"></div>
       </div>
-      <!-- tools -->
+
       <div class="card" data-cat="Tools">
         <h2>Base64 Encode</h2>
         <div class="endpoint">/api/tools/base64</div>
-        <div class="btn-group">
-          <a class="btn" href="/api/tools/base64" target="_blank">Coba</a>
-          <button class="btn" onclick="copyToClipboard('/api/tools/base64')">Copy URL</button>
-        </div>
+        <button class="btn" onclick="fetchData('/api/tools/base64', this)">Coba</button>
+        <div class="response" style="display:none;"></div>
       </div>
     </main>
   </div>
   <footer>© 2025 - AnimeVerse API | Created by Dichxploit</footer>
+
   <script>
     function selectCat(cat){
       document.querySelectorAll('.category').forEach(e=>e.classList.remove('active'));
       event.target.classList.add('active');
       filterCards();
     }
+
     function filterCards(){
       const cat = document.querySelector('.category.active').textContent;
       const search = document.getElementById('search').value.toLowerCase();
@@ -159,10 +164,19 @@ export default function handler(req, res) { res.setHeader('Content-Type', 'text/
         card.style.display = matchCat && matchSearch ? '' : 'none';
       });
     }
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert('URL berhasil disalin: ' + text);
-      });
+
+    async function fetchData(endpoint, btn){
+      const responseBox = btn.nextElementSibling;
+      responseBox.style.display = 'block';
+      responseBox.textContent = 'Loading...';
+
+      try {
+        const res = await fetch(endpoint);
+        const data = await res.json();
+        responseBox.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        responseBox.textContent = 'Gagal mengambil data: ' + err.message;
+      }
     }
   </script>
 </body>
