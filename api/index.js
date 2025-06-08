@@ -1,89 +1,77 @@
 // pages/api/index.js
+import { apiEndpoints } from '../../data/endpoints.js';
+
 export default function handler(req, res) {
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
   res.status(200).send(`<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AnimeVerse API</title>
   <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:'Rubik',sans-serif; background:#0d0d0d; color:#fff; }
-    header { padding:1rem; text-align:center; background:#111; font-size:1.5rem; color:#1abc9c; }
-    .container { display:flex; }
-    nav { width:220px; background:#111; min-height:calc(100vh - 60px); padding:1rem; }
-    nav input { width:100%; padding:0.5rem; margin-bottom:1rem; border-radius:4px; border:none; }
-    nav .category { margin:0.5rem 0; cursor:pointer; padding:0.4rem; border-radius:4px; }
-    nav .category:hover, nav .category.active { background:#1abc9c; }
-    main { flex:1; padding:1rem; }
-    .card { background:#1c1c1c; padding:20px; margin-bottom:20px; border-radius:8px; }
-    .card h2 { margin:0 0.5rem 0.5rem; color:#1abc9c; }
-    .endpoint { font-family:monospace; background:#111; padding:0.5rem; border-radius:4px; overflow-x:auto; }
-    .btn { display:inline-block; margin-top:0.5rem; background:#1abc9c; color:#fff; padding:0.5rem 1rem; text-decoration:none; border-radius:4px; }
+    .header { padding:1rem; text-align:center; background:#111; font-size:1.5rem; color:#1abc9c; }
+    .flex { display:flex; }
+    .sidebar { width:220px; background:#111; height:calc(100vh - 60px); overflow:auto; padding:1rem; }
+    .sidebar .category { margin-bottom:0.5rem; padding:0.4rem; border-radius:4px; cursor:pointer; }
+    .sidebar .active { background:#1abc9c; font-weight:bold; }
+    .content { flex:1; padding:1rem; overflow:auto; height:calc(100vh - 60px); }
+    .card { background:#1c1c1c; border-radius:8px; padding:1rem; margin-bottom:1rem; }
+    .card h2 { margin:0 0 .5rem; color:#1abc9c; }
+    .endpoint { background:#111; padding:.5rem; font-family:monospace; border-radius:4px; overflow-x:auto; }
+    .btn { display:inline-block; margin-top:.5rem; background:#1abc9c; color:#fff; padding:.5rem 1rem; text-decoration:none; border-radius:4px; }
     .btn:hover { background:#16a085; }
-    footer { text-align:center; font-size:0.8rem; color:#888; padding:1rem; }
+    .tags { margin-top:.5rem; }
+    .tag { display:inline-block; background:#333; color:#ccc; padding:0.2rem .5rem; margin-right:0.3rem; border-radius:4px; font-size:0.8rem; }
+    footer { text-align:center; padding:1rem; font-size:0.8rem; color:#888; }
   </style>
 </head>
 <body>
-  <header>AnimeVerse API</header>
-  <div class="container">
-    <nav>
-      <input type="text" id="search" placeholder="Cari endpoint..." oninput="filterCategories()" />
-      <div class="category active" onclick="selectCat('all')">Semua Kategori</div>
-      <div class="category" onclick="selectCat('Downloader')">Downloader</div>
-      <div class="category" onclick="selectCat('Tools')">Tools</div>
-      <div class="category" onclick="selectCat('AI')">AI</div>
-      <div class="category" onclick="selectCat('Audio')">Audio</div>
-    </nav>
-    <main id="main">
-      <!-- downloader -->
-      <div class="card" data-cat="Downloader"><h2>Instagram Downloader</h2>
-        <div class="endpoint">/api/download/instagram?url=</div>
-        <a class="btn" href="/api/download/instagram?url=" target="_blank">Coba</a>
-      </div>
-      <div class="card" data-cat="Downloader"><h2>TikTok Downloader</h2>
-        <div class="endpoint">/api/download/tiktok?url=</div>
-        <a class="btn" href="/api/download/tiktok?url=" target="_blank">Coba</a>
-      </div>
-      <!-- tools -->
-      <div class="card" data-cat="Tools"><h2>Base64 Encode</h2>
-        <div class="endpoint">/api/tools/base64</div>
-        <a class="btn" href="/api/tools/base64" target="_blank">Coba</a>
-      </div>
-      <div class="card" data-cat="Tools"><h2>Enhancer HD</h2>
-        <div class="endpoint">/api/tools/enhancer</div>
-        <a class="btn" href="/api/tools/enhancer" target="_blank">Coba</a>
-      </div>
-      <!-- ai -->
-      <div class="card" data-cat="AI"><h2>Chat AI</h2>
-        <div class="endpoint">/api/ai/chat</div>
-        <a class="btn" href="/api/ai/chat" target="_blank">Coba</a>
-      </div>
-      <!-- audio -->
-      <div class="card" data-cat="Audio"><h2>Spotify Downloader</h2>
-        <div class="endpoint">/api/download/spotify?url=</div>
-        <a class="btn" href="/api/download/spotify?url=" target="_blank">Coba</a>
-      </div>
-    </main>
+  <div class="header">AnimeVerse API</div>
+  <div class="flex">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="content" id="content"></div>
   </div>
   <footer>© 2025 - AnimeVerse API | Created by Dichxploit</footer>
   <script>
-    function selectCat(cat){
-      document.querySelectorAll('.category').forEach(e=>e.classList.remove('active'));
-      event.target.classList.add('active');
-      filterCards();
+    const endpoints = ${JSON.stringify(apiEndpoints)};
+    const categories = ["Semua Kategori", ...new Set(endpoints.flatMap(e => e.categories))];
+    let selected = "Semua Kategori";
+
+    function renderSidebar() {
+      const sb = document.getElementById("sidebar");
+      sb.innerHTML = categories.map(cat => 
+        \`<div class="category \${cat === selected ? 'active' : ''}" onclick="selectCat('\${cat}')">\${cat}</div>\`
+      ).join('');
     }
-    function filterCards(){
-      const cat = document.querySelector('.category.active').textContent;
-      const search = document.getElementById('search').value.toLowerCase();
-      document.querySelectorAll('.card').forEach(card => {
-        const title = card.querySelector('h2').textContent.toLowerCase();
-        const matchCat = (cat==='Semua Kategori'|| card.dataset.cat === cat);
-        const matchSearch = title.includes(search);
-        card.style.display = matchCat && matchSearch ? '' : 'none';
-      });
+
+    function renderContent() {
+      const ct = document.getElementById("content");
+      const filtered = selected === "Semua Kategori"
+        ? endpoints
+        : endpoints.filter(e => e.categories.includes(selected));
+      ct.innerHTML = filtered.map(e => \`
+        <div class="card">
+          <h2>\${e.title}</h2>
+          <p>\${e.desc}</p>
+          <div class="endpoint">\${e.path}</div>
+          <a class="btn" href="\${e.path}" target="_blank">Coba</a>
+          <div class="tags">\${e.categories.map(c=>'<span class="tag">'+c+'</span>').join('')}</div>
+        </div>\`).join('');
     }
+
+    function selectCat(cat) {
+      selected = cat;
+      renderSidebar();
+      renderContent();
+    }
+
+    window.onload = () => {
+      renderSidebar();
+      renderContent();
+    };
   </script>
 </body>
 </html>`);
