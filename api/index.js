@@ -20,7 +20,8 @@ export default function handler(req, res) {
     .card { background:#1c1c1c; padding:20px; margin-bottom:20px; border-radius:8px; }
     .card h2 { margin:0 0.5rem 0.5rem; color:#1abc9c; }
     .endpoint { font-family:monospace; background:#111; padding:0.5rem; border-radius:4px; overflow-x:auto; }
-    .btn { display:inline-block; margin-top:0.5rem; background:#1abc9c; color:#fff; padding:0.5rem 1rem; text-decoration:none; border:none; cursor:pointer; border-radius:4px; }
+    .btn-group { display:flex; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap; }
+    .btn { background:#1abc9c; color:#fff; padding:0.5rem 1rem; text-decoration:none; border:none; border-radius:4px; cursor:pointer; }
     .btn:hover { background:#16a085; }
     footer { text-align:center; font-size:0.8rem; color:#888; padding:1rem; }
     pre.json-result {
@@ -61,21 +62,30 @@ export default function handler(req, res) {
         <h2>Instagram Downloader</h2>
         <div class="endpoint">/api/download/instagram?url=</div>
         <input type="text" placeholder="Paste URL Instagram..." class="url-input" data-endpoint="/api/download/instagram" />
-        <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        <div class="btn-group">
+          <button class="btn" onclick="pasteURL(this)">Paste URL</button>
+          <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        </div>
         <pre class="json-result"></pre>
       </div>
       <div class="card" data-cat="Downloader">
         <h2>TikTok Downloader</h2>
         <div class="endpoint">/api/download/tiktok?url=</div>
         <input type="text" placeholder="Paste URL TikTok..." class="url-input" data-endpoint="/api/download/tiktok" />
-        <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        <div class="btn-group">
+          <button class="btn" onclick="pasteURL(this)">Paste URL</button>
+          <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        </div>
         <pre class="json-result"></pre>
       </div>
       <div class="card" data-cat="Downloader">
         <h2>Spotify Downloader</h2>
         <div class="endpoint">/api/download/spotify?url=</div>
         <input type="text" placeholder="Paste URL Spotify..." class="url-input" data-endpoint="/api/download/spotify" />
-        <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        <div class="btn-group">
+          <button class="btn" onclick="pasteURL(this)">Paste URL</button>
+          <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        </div>
         <pre class="json-result"></pre>
       </div>
 
@@ -83,13 +93,17 @@ export default function handler(req, res) {
       <div class="card" data-cat="Tools">
         <h2>Base64 Encode</h2>
         <div class="endpoint">/api/tools/base64</div>
-        <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        <div class="btn-group">
+          <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        </div>
         <pre class="json-result"></pre>
       </div>
       <div class="card" data-cat="Tools">
         <h2>Enhancer HD</h2>
         <div class="endpoint">/api/tools/enhancer</div>
-        <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        <div class="btn-group">
+          <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        </div>
         <pre class="json-result"></pre>
       </div>
 
@@ -97,7 +111,9 @@ export default function handler(req, res) {
       <div class="card" data-cat="AI">
         <h2>Chat AI</h2>
         <div class="endpoint">/api/ai/chat</div>
-        <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        <div class="btn-group">
+          <button class="btn" onclick="tryEndpoint(this)">Coba</button>
+        </div>
         <pre class="json-result"></pre>
       </div>
     </main>
@@ -135,6 +151,16 @@ export default function handler(req, res) {
         pre.textContent = JSON.stringify(data, null, 2);
       } catch (err) {
         pre.textContent = 'Error: ' + err.message;
+      }
+    }
+
+    async function pasteURL(btn) {
+      const input = btn.closest('.card').querySelector('.url-input');
+      try {
+        const text = await navigator.clipboard.readText();
+        input.value = text;
+      } catch (err) {
+        alert('Gagal mengambil clipboard: ' + err.message);
       }
     }
   </script>
